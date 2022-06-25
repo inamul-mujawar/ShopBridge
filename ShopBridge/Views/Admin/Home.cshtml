@@ -1,0 +1,214 @@
+﻿@model IEnumerable<ShopBridge.Models.Item>
+@{
+    ViewBag.Title = "Home";
+}
+
+
+<link rel="stylesheet" href="~/Assets/Vendor/DataTables-1.11.5/css/dataTables.bootstrap4.min.css" />
+<style>
+
+    .credits {
+        position: fixed;
+        justify-content: center;
+        align-items: flex-end;
+        bottom: 0;
+        background-color: black;
+    }
+</style>
+
+<main class="mx-5 mt-3">
+    <section>
+        @*<div class="navigation-tile">
+                <div class="alert p-0 mb-0 my-1" role="alert">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb bg-white pb-0 pl-0">
+                            <li class="breadcrumb-item"><a href="/Admin/Home">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Manage Items</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>*@
+    </section>
+    <section>
+        <div class="add-items">
+            <p>
+                <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Add Items
+                </a>
+            </p>
+            <div>
+                <div class="collapse" id="collapseExample">
+                    <div class="card card-body">
+                        <form method="POST" id="AddItemForm">
+                            <div class="row">
+                                <div class="form-floating col-lg-3 col-xl-3">
+                                    <input type="text" class="form-control" name="Name" placeholder="item name">
+                                    <label for="Name">Name</label>
+                                </div>
+                                <div class="form-floating col-lg-3 col-xl-3">
+                                    <input type="text" class="form-control" name="Description" placeholder="product description">
+                                    <label for="Description">Description</label>
+                                </div>
+                                <div class="form-floating col-lg-3 col-xl-3">
+                                    <input type="number" class="form-control" name="Price" placeholder="45.15">
+                                    <label for="Price">Price</label>
+                                </div>
+                                <div class="form-floating col-lg-3 col-xl-3">
+                                    <input type="number" class="form-control" name="Quantity" placeholder="1">
+                                    <label for="Quantity">Quantity</label>
+                                </div>
+                                <div class="mt-2 d-flex justify-content-center">
+                                    <button class="btn btn-primary w-25" type="button" onclick="AddItem()">Add Item</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <section>
+        <div class="details-info">
+            @*<div class="d-flex border-bottom">
+                    <h3>Posted Jobs</h3>
+                </div>*@
+            <div class="mx-0 mt-3">
+                <div class="card mb-4 px-0">
+                    <div class="card-header bg-dark text-white">
+                        <div class="row mx-0">
+                            <div class="col-lg-4 col-xl-4">
+                                <i class="fa fa-table mr-1" aria-hidden="true"></i>
+                                List Of Items
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="posted-jobs-dataTable">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Sr.No</th>
+                                        <th>Status</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approved-posted-jobs">
+                                    @{ var counterSrNo = 1;}
+                                    @foreach (var item in Model)
+                                    {
+                                        if (item.IsActive)
+                                        {
+                                            <tr>
+                                                <td>@counterSrNo</td>
+                                                <td><span class="badge bg-success font-sm">Approved</span></td>
+                                                <td>@item.Name</td>
+                                                <td>@item.Description</td>
+                                                <td>@item.Price</td>
+                                                <td>@item.Quantity</td>
+                                                <td class="text-center">
+                                                    <div>
+                                                        <button class="d-inline btn btn-warning btn-sm" onclick="GetListOfItems(@item.ItemId)"><i class="fa fa-info-circle pr-1" aria-hidden="true"></i> Edit</button>
+                                                        <button class="d-inline btn btn-danger btn-sm" onclick="DeleteItem(@item.ItemId)"><i class="fa fa-info-circle pr-1" aria-hidden="true"></i> Delete</button>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td>@counterSrNo</td>
+                                                <td><span class="badge bg-danger font-sm">Removed</span></td>
+                                                <td>@item.Name</td>
+                                                <td>@item.Description</td>
+                                                <td>@item.Price</td>
+                                                <td>@item.Quantity</td>
+                                                <td class="text-center">
+                                                    <div>
+                                                        <button class="d-inline btn btn-warning btn-sm" onclick="GetListOfItems(@item.ItemId)"><i class="fa fa-info-circle pr-1" aria-hidden="true"></i> Edit</button>
+                                                        <button class="d-inline btn btn-danger btn-sm" onclick="DeleteItem(@item.ItemId)"><i class="fa fa-info-circle pr-1" aria-hidden="true"></i> Delete</button>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        { counterSrNo += 1; }
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="modal fade" id="ModalEditItem" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ModalEditItemLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalEditItemLabel">Edit Item</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mx-0 mt-3">
+                            <div class="col-12 col-lg-4 col-xl-4">
+                                <label class="form-label">Id</label>
+                                <input type="text" class="form-control input-field" name="ItemId" readonly>
+                            </div>
+                            <div class="col-12 col-lg-4 col-xl-4">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control input-field" name="Name">
+                            </div>
+
+                            <div class="col-12 col-lg-4 col-xl-4">
+                                <label class="form-label">Description</label>
+                                <input type="text" class="form-control input-field" name="Description">
+                            </div>
+                            <div class="col-12 col-lg-4 col-xl-4">
+                                <label class="form-label">Price</label>
+                                <input type="number" class="form-control input-field" name="Price">
+                            </div>
+
+                            <div class="col-12 col-lg-4 col-xl-4">
+                                <label class="form-label">Quantity</label>
+                                <input type="number" class="form-control input-field" name="Quantity">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-warning" onclick="ConfirmationToUpdateItem(this)" id="EditItemBtn">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="ModalDeleteItem" tabindex="-1" aria-labelledby="ModalDeleteItemLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalDeleteItemLabel">Delete Item</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="card-text">Are you sure you want to Delete ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="ConfirmationToDeleteItem(this)" id="DeleteItemBtn">Approve</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+
+
